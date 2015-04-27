@@ -7,7 +7,7 @@ import geoip2.database
 # GEO IP SAMPLE TEST:
 reader = geoip2.database.Reader('/Users/justinchan/PycharmProjects/africa/geo_db/GeoLite2-City.mmdb')
 
-response = reader.city('129.49.122.166')
+response = reader.city('62.40.125.17')
 
 print(response.city.name)
 print(response.country.name)

@@ -16,7 +16,7 @@ class traceRt:
             if type == 1: # Return country name
                 name = response.country.name
             elif type == 2: # Return continent name
-                name = response.continent.names['en']
+                name = response.continent.name['en']
             else:
                 print("geoIP: Specify country or continent!")
         except geoip2.errors.AddressNotFoundError:
@@ -39,7 +39,7 @@ class traceRt:
                     print(hopTry['rtt'])
                 else:
                     # timeout case
-                    # pprint(hopTry)
+                    pprint(hopTry)
 
     def __init__(self, rawTrace):
         self.geoDB = geoip2.database.Reader('/Users/justinchan/PycharmProjects/africa/geo_db/GeoLite2-City.mmdb')
@@ -55,6 +55,8 @@ class traceRt:
             print("src_addr or dst_addr is empty. Skipping hop parsing")
             pprint(self.rawTrace)
             self.isValid = False
+        else:
+            self.isValid = True
 
         if self.isValid:
             # Geolocate source and destination countries/continents
