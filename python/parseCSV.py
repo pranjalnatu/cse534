@@ -70,8 +70,9 @@ class traceRt:
 
 
         print("------INFO------")
-        print("Destination:", self.dstGeo.country, self.dstGeo.continent)
         print("Source:", self.srcGeo.country, self.srcGeo.continent)
+        print("Destination:", self.dstGeo.country, self.dstGeo.continent)
+
         for each in self.hopListGeo:
             print("Hop:", each.country, each.continent)
         print("------END-----")
