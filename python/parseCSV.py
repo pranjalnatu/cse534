@@ -1,7 +1,12 @@
 import csv
 import geoip2.database
+import numpy as np
+from os.path import expanduser
+home = expanduser("~")
 
-geoDB = geoip2.database.Reader('/Users/pranjalnatu/Documents/cse534/python/geo_db/GeoLite2-City.mmdb')
+geoDB = geoip2.database.Reader(home+'/cse534/GeoLite2-City.mmdb')
+
+
 
 class geoIP:
     def __init__(self, ipAddr):
@@ -32,6 +37,9 @@ class hopInfo:
 
         self.hopAddr = hopRTT1[0]
 
+        # print( 'hopRTT[1]=',hopRTT1[1]  )
+
+
         '''
         print("hopAddr:",self.hopAddr)
         print("hopRTT1:",self.hopRTT1)
@@ -40,6 +48,58 @@ class hopInfo:
         '''
 
 class traceRt:
+
+    def checkCase1(self):
+        #############################
+        #       CASE No. 1
+        # Check if src & dst are in same country and one of the hops is in a different country
+        ############################
+        circuitousness = 0
+        if self.srcGeo.country == self.dstGeo.country:
+            print("Hello Case1!")
+            for each in self.hopListGeo:
+                print("Hop:", each.country, each.continent)
+            for each in self.hopListGeo:
+                if each.country != self.srcGeo.country and each.country != "null":
+                    print("Circuit Case1 Yo!")
+                    circuitousness = 1
+
+        return circuitousness
+
+    def checkCase2(self):
+        ##########################
+        #       CASE No. 2
+        # Check if src & dst are in the same continent and one of the hops is in a different continent
+        ##########################
+        circuitousness = 0
+        if self.srcGeo.continent == self.dstGeo.continent:
+            print("Hello Case2!")
+            for each in self.hopListGeo:
+                print("Hop:", each.country, each.continent)
+            for each in self.hopListGeo:
+                if each.continent != self.srcGeo.continent and each.continent != "null":
+                    print("Circuit Case2 Yo!")
+                    circuitousness = 1
+
+        return circuitousness
+
+    def checkCase3(self):
+        #############################
+        #       CASE No. 3
+        # Check if src & dst are in continents A & B and one of the hops is in a continent C such that C != A && C != B
+        ############################
+        circuitousness = 0
+        if self.srcGeo.continent != self.dstGeo.continent:
+            print("Hello Case3!")
+            for each in self.hopListGeo:
+                print("Hop:", each.country, each.continent)
+            for each in self.hopListGeo:
+                if each.continent != self.srcGeo.continent and each.continent != self.dstGeo.continent and each.continent != "null":
+                    print("Circuit Case3 Yo!")
+                    circuitousness = 1
+
+        return circuitousness
+
 
     def __init__(self, csvRow):
         self.csvRow = csvRow
@@ -54,12 +114,6 @@ class traceRt:
             hop = hopInfo(self.csvRow[i], self.csvRow[i+1], self.csvRow[i+2])
             self.hopList.append(hop)
 
-        '''
-        print(self.hopList[0].hopAddr)
-        print(self.hopList[1].hopAddr)
-        print(self.hopList[2].hopAddr)
-        '''
-
         # get GEO ip on src, dst, and hops
         self.dstGeo = geoIP(self.dstIP)
         self.srcGeo = geoIP(self.srcIP)
@@ -72,46 +126,16 @@ class traceRt:
         print("Source:", self.srcGeo.country, self.srcGeo.continent)
         print("Destination:", self.dstGeo.country, self.dstGeo.continent)
 
-        #############################
-        #       CASE No. 1
-        # Check if src & dst are in same country and one of the hops is in a different country
-        ############################
-        if self.srcGeo.country == self.dstGeo.country:
-            print("Hello Case1!")
-            for each in self.hopListGeo:
-                print("Hop:", each.country, each.continent)
-            for each in self.hopListGeo:
-                if each.country != self.srcGeo.country and each.country != "null":
-                    print("Circuit Case1 Yo!")
+        # Check our three cases of circuitousness:
+        self.checkCase1()
+        self.checkCase2()
+        self.checkCase3()
 
-        ##########################
-        #       CASE No. 2
-        # Check if src & dst are in the same continent and one of the hops is in a different continent
-        ##########################
-        if self.srcGeo.continent == self.dstGeo.continent:
-            print("Hello Case2!")
-            for each in self.hopListGeo:
-                print("Hop:", each.country, each.continent)
-            for each in self.hopListGeo:
-                if each.continent != self.srcGeo.continent and each.continent != "null":
-                    print("Circuit Case2 Yo!")
-
-        #############################
-        #       CASE No. 3
-        # Check if src & dst are in continents A & B and one of the hops is in a continent C such that C != A && C != B
-        ############################
-        if self.srcGeo.continent != self.dstGeo.continent:
-            print("Hello Case3!")
-            for each in self.hopListGeo:
-                print("Hop:", each.country, each.continent)
-            for each in self.hopListGeo:
-                if each.continent != self.srcGeo.continent and each.continent != self.dstGeo.continent and each.continent != "null":
-                    print("Circuit Case3 Yo!")
 
         print("------END-----")
 
 
-csvFilePath = open('/Users/pranjalnatu/Downloads/downloadContentTraceroutes/1765620.csv')
+csvFilePath = open(home+'/cse534/data/1765619.csv')
 csvFile = csv.reader(csvFilePath, delimiter=';')
 
 for row in csvFile:
