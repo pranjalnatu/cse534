@@ -1,6 +1,5 @@
 import csv
 import geoip2.database
-import numpy as np
 from os.path import expanduser
 home = expanduser("~")
 
@@ -83,6 +82,7 @@ class traceRt:
 
         return circuitousness
 
+
     def checkCase3(self):
         #############################
         #       CASE No. 3
@@ -134,8 +134,8 @@ class traceRt:
 
         print("------END-----")
 
-
 csvFilePath = open(home+'/cse534/data/1765619.csv')
+
 csvFile = csv.reader(csvFilePath, delimiter=';')
 
 for row in csvFile:
