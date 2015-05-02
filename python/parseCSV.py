@@ -1,6 +1,7 @@
 import csv
 import geoip2.database
 from asLookup import asLookup
+import numpy as np
 from os.path import expanduser
 home = expanduser("~")
 
@@ -38,6 +39,8 @@ class hopInfo:
         self.hopAddr = hopRTT1[0]
 
         # print( 'hopRTT[1]=',hopRTT1[1]  )
+
+        print("Mean",np.mean([float(hopRTT1[1]), float(hopRTT2[1]), float(hopRTT3[1])]))
 
 
         '''
@@ -157,7 +160,7 @@ class traceRt:
 
         print("------END-----")
 
-csvFilePath = open(home+'/cse534/data/1765619.csv')
+csvFilePath = open(home+'/cse534/data/1766611.csv')
 
 csvFile = csv.reader(csvFilePath, delimiter=';')
 
