@@ -1,5 +1,6 @@
 import csv
 import geoip2.database
+from asLookup import asLookup
 from os.path import expanduser
 home = expanduser("~")
 
@@ -65,6 +66,12 @@ class traceRt:
 
         return circuitousness
 
+    def analyzeCase1(self):
+        # TODO: fill in analyzeCase1
+        # Case 1: Src and Dst are in the same country, intermediate hop is outside ctry
+        print("Analyze Case 1:\n Source and Destination are in ", self.srcGeo.country)
+
+
     def checkCase2(self):
         ##########################
         #       CASE No. 2
@@ -81,6 +88,10 @@ class traceRt:
                     circuitousness = 1
 
         return circuitousness
+
+    def analyzeCase2(self):
+        # Case 1: Src and Dst are in the same continent, intermediate hop is outside continent
+        print("Analyze Case 2: Src and Dst are both in the same continent -", self.srcGeo.continent)
 
 
     def checkCase3(self):
@@ -99,6 +110,11 @@ class traceRt:
                     circuitousness = 1
 
         return circuitousness
+
+    def analyzeCase3(self):
+        # TODO: fill in analyzeCase3
+        # Case 1: Src and Dst are in the same continent, intermediate hop is outside continent
+        print("Analyze Case 3")
 
 
     def __init__(self, csvRow):
@@ -127,10 +143,17 @@ class traceRt:
         print("Destination:", self.dstGeo.country, self.dstGeo.continent)
 
         # Check our three cases of circuitousness:
-        self.checkCase1()
-        self.checkCase2()
-        self.checkCase3()
+        case1status = self.checkCase1()
+        if case1status == 1:
+            self.analyzeCase1()
 
+        case2status = self.checkCase2()
+        if case2status == 1:
+            self.analyzeCase2()
+
+        case3status = self.checkCase3()
+        if case3status == 1:
+            self.analyzeCase3()
 
         print("------END-----")
 
@@ -139,4 +162,5 @@ csvFilePath = open(home+'/cse534/data/1765619.csv')
 csvFile = csv.reader(csvFilePath, delimiter=';')
 
 for row in csvFile:
-    traceRt(row)
+    result = traceRt(row)
+    print("------------------------------- Next Row -------------------------------")
