@@ -140,44 +140,55 @@ class traceRt:
             hop = hopInfo(self.csvRow[i], self.csvRow[i+1], self.csvRow[i+2])
             self.hopList.append(hop)
 
-        # get GEO ip on src, dst, and hops
-        self.dstGeo = geoIP(self.dstIP)
-        self.srcGeo = geoIP(self.srcIP)
+        isError = 0
 
-        self.hopListGeo = []
+        # check for error in hop RTTs, skip processing if there are.
         for hop in self.hopList:
-            self.hopListGeo.append(geoIP(hop.hopAddr))
+            try:
+                print("Mean:", np.mean([float(hop.hopRTT1[1]), float(hop.hopRTT2[1]), float(hop.hopRTT3[1])]))
+            except:
+                isError = 1
 
-        self.hopListAS = []
-        for hop in self.hopList:
-            self.hopListAS.append(asLookup(hop.hopAddr, 2))
-            print('AS Number =', self.hopListAS[-1].asNumber)
+        if isError == 0:
+
+            # get GEO ip on src, dst, and hops
+            self.dstGeo = geoIP(self.dstIP)
+            self.srcGeo = geoIP(self.srcIP)
+
+            self.hopListGeo = []
+            for hop in self.hopList:
+                self.hopListGeo.append(geoIP(hop.hopAddr))
+
+            self.hopListAS = []
+            for hop in self.hopList:
+                self.hopListAS.append(asLookup(hop.hopAddr, 2))
+                print('AS Number =', self.hopListAS[-1].asNumber)
 
 
-        print(self.hopListAS[:])
+            print(self.hopListAS[:])
 
-        print("------INFO------")
-        print("Source:", self.srcGeo.country, self.srcGeo.continent)
-        print("Destination:", self.dstGeo.country, self.dstGeo.continent)
+            print("------INFO------")
+            print("Source:", self.srcGeo.country, self.srcGeo.continent)
+            print("Destination:", self.dstGeo.country, self.dstGeo.continent)
 
-        # Check our three cases of circuitousness:
-        case1status = self.checkCase1()
-        if case1status == 1:
-            self.analyzeCase1()
-            self.csvWrite(csvRow, case1filePath)
-            # csvwrite csvRow here
+            # Check our three cases of circuitousness:
+            case1status = self.checkCase1()
+            if case1status == 1:
+                self.analyzeCase1()
+                self.csvWrite(csvRow, case1filePath)
+                # csvwrite csvRow here
 
-        case2status = self.checkCase2()
-        if case2status == 1:
-            self.analyzeCase2()
-            self.csvWrite(csvRow, case2filePath)
+            case2status = self.checkCase2()
+            if case2status == 1:
+                self.analyzeCase2()
+                self.csvWrite(csvRow, case2filePath)
 
-        case3status = self.checkCase3()
-        if case3status == 1:
-            self.analyzeCase3()
-            self.csvWrite(csvRow, case3filePath)
+            case3status = self.checkCase3()
+            if case3status == 1:
+                self.analyzeCase3()
+                self.csvWrite(csvRow, case3filePath)
 
-        print("------END-----")
+            print("------END-----")
 
 csvFilePath = open(home+'/cse534/data/content_traceroute/1766609.csv')
 
