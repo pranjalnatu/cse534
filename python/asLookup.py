@@ -1,4 +1,5 @@
 import subprocess
+from IPy import IP
 
 
 # Uses AS Path Tool by Haseeb Niaz @ Networking Research Group, Stony Brook University
@@ -20,7 +21,10 @@ class asLookup:
         echoProcess = subprocess.Popen(("echo", query), stdout=subprocess.PIPE)
 
         # pipe in echoProcess's output into netcat, capture result into buffer
-        lookupOutput = subprocess.check_output(("netcat", lookupServer, lookupServerPort), stdin=echoProcess.stdout)
+        try:
+            lookupOutput = subprocess.check_output(("netcat", lookupServer, lookupServerPort), stdin=echoProcess.stdout)
+        except:
+            print("asLookup: error from netcat")
 
         # decode output buffer as UTF-8 string
         lookupResultString = lookupOutput.decode("UTF-8")
@@ -42,6 +46,7 @@ class asLookup:
         return
 
     def ipLookup(self, inputIP):
+        self.ipAddr = inputIP
 
         inputQuery = "-info "+inputIP
         reply = self.sendQuery(inputQuery)
@@ -51,14 +56,23 @@ class asLookup:
         resultLine = resultParse[1] # first line is headers, discard
         resultLine = [x.strip() for x in resultLine.split('|')]
 
-
-        self.asNumber = resultLine[1]
-        self.ipAddr = inputIP
-        self.bgpPrefix = resultLine[2]
-        self.country = resultLine[3]
-        self.registry = resultLine[4]
-        self.allocated = resultLine[5]
-        self.asName = resultLine[6]
+        privateCheck = IP(inputIP)
+        if privateCheck.iptype() != 'PRIVATE':
+            self.isPrivate = False
+            self.asNumber = resultLine[0]
+            self.bgpPrefix = resultLine[2]
+            self.country = resultLine[3]
+            self.registry = resultLine[4]
+            self.allocated = resultLine[5]
+            self.asName = resultLine[6]
+        else:
+            self.isPrivate = True
+            self.asNumber = "null"
+            self.bgpPrefix ="null"
+            self.country = "null"
+            self.registry = "null"
+            self.allocated = "null"
+            self.asName = "null"
 
     def __init__(self, inputString, lookupType):
 
