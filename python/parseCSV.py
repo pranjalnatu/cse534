@@ -40,7 +40,6 @@ class hopInfo:
 
         # print( 'hopRTT[1]=',hopRTT1[1]  )
 
-        print("Mean",np.mean([float(hopRTT1[1]), float(hopRTT2[1]), float(hopRTT3[1])]))
 
 
         '''
@@ -133,37 +132,50 @@ class traceRt:
             hop = hopInfo(self.csvRow[i], self.csvRow[i+1], self.csvRow[i+2])
             self.hopList.append(hop)
 
-        # get GEO ip on src, dst, and hops
-        self.dstGeo = geoIP(self.dstIP)
-        self.srcGeo = geoIP(self.srcIP)
+        isError = 0;
 
-        self.hopListGeo = []
         for hop in self.hopList:
-            self.hopListGeo.append(geoIP(hop.hopAddr))
+            try:
+                print("Mean",np.mean([float(hop.hopRTT1[1]), float(hop.hopRTT2[1]), float(hop.hopRTT3[1])]))
+            except:
+                isError = 1;
 
-        print("------INFO------")
-        print("Source:", self.srcGeo.country, self.srcGeo.continent)
-        print("Destination:", self.dstGeo.country, self.dstGeo.continent)
 
-        # Check our three cases of circuitousness:
-        case1status = self.checkCase1()
-        if case1status == 1:
-            self.analyzeCase1()
+        if isError == 0:
+            # get GEO ip on src, dst, and hops
+            self.dstGeo = geoIP(self.dstIP)
+            self.srcGeo = geoIP(self.srcIP)
 
-        case2status = self.checkCase2()
-        if case2status == 1:
-            self.analyzeCase2()
+            self.hopListGeo = []
+            for hop in self.hopList:
+                self.hopListGeo.append(geoIP(hop.hopAddr))
 
-        case3status = self.checkCase3()
-        if case3status == 1:
-            self.analyzeCase3()
+            print("------INFO------")
+            print("Source:", self.srcGeo.country, self.srcGeo.continent)
+            print("Destination:", self.dstGeo.country, self.dstGeo.continent)
 
-        print("------END-----")
+            # Check our three cases of circuitousness:
+            case1status = self.checkCase1()
+            if case1status == 1:
+                self.analyzeCase1()
 
-csvFilePath = open(home+'/cse534/data/1766611.csv')
+            case2status = self.checkCase2()
+            if case2status == 1:
+                self.analyzeCase2()
+
+            case3status = self.checkCase3()
+            if case3status == 1:
+                self.analyzeCase3()
+
+            print("------END-----")
+
+csvFilePath = open(home+'/cse534/data/regional_combined/combined_filtered_80.csv')
 
 csvFile = csv.reader(csvFilePath, delimiter=';')
 
+index = 1
+
 for row in csvFile:
     result = traceRt(row)
-    print("------------------------------- Next Row -------------------------------")
+    index = index + 1
+    print("------------------------------- Next Row ------------------------------- ", index)
