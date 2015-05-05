@@ -40,7 +40,7 @@ class asLookup:
 
         resultParse = [x.strip() for x in reply.split('|')]
 
-        if len(resultParse <=1):
+        if len(resultParse) <=1 :
             self.asLookupSucceed = 0
         else:
             self.asLookupSucceed = 1
