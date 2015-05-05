@@ -30,7 +30,7 @@ class asLookup:
 
         lookupResultString = lookupOutput.decode("UTF-8")
         lookupResultString = lookupResultString.replace("\"", "")
-        print(lookupResultString)
+        # print(lookupResultString)
         return lookupResultString
 
     def asLookup(self, inputAS):
@@ -40,10 +40,15 @@ class asLookup:
 
         resultParse = [x.strip() for x in reply.split('|')]
 
-        self.asNumber = inputAS
-        self.country = resultParse[1]
-        self.registry = resultParse[2]
-        self.asName = resultParse[4]
+        if len(resultParse <=1):
+            self.asLookupSucceed = 0
+        else:
+            self.asLookupSucceed = 1
+            self.asNumber = inputAS
+            self.country = resultParse[1]
+            self.registry = resultParse[2]
+            self.asName = resultParse[4]
+
         return
 
     def ipLookup(self, inputIP):
@@ -57,8 +62,15 @@ class asLookup:
         resultLine = resultParse[0]
         resultLine = [x.strip() for x in resultLine.split('|')]
 
+        if len(resultLine) <= 1:
+            self.ipToASLookupSucceed = 0
+        else:
+            self.ipToASLookupSucceed = 1
+
         privateCheck = IP(inputIP)
-        if privateCheck.iptype() != 'PRIVATE':
+        if privateCheck.iptype() != 'PRIVATE' and self.ipToASLookupSucceed == 1:
+            # print(inputIP)
+            # print(resultLine)
             self.isPrivate = False
             self.asNumber = resultLine[0]
             self.bgpPrefix = resultLine[1]

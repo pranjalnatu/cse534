@@ -59,7 +59,7 @@ class analyzeCase():
 
         # loop through each hop
             # look at continent of intermediate hop
-            # if hop is not srcContinent or dstContinent, output the hop - (IP, AS, Country, Continent) 
+            # if hop is not srcContinent or dstContinent, output the hop - (IP, AS, Country, Continent)
 
         return
 
