@@ -3,8 +3,10 @@ Attributions:
 GeoLite2:
 This product includes GeoLite2 data created by MaxMind, available from http://www.maxmind.com
 
+
+
 AS Path Tool:
 This product uses AS Path Tool provided by Haseeb Niaz (Networking Research Group @ Stony Brook)
-
+This product also uses the AS lookup service by Team CYMRU (http://www.team-cymru.org/IP-ASN-mapping.html)
 
 

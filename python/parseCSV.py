@@ -161,7 +161,9 @@ class traceRt:
 
             self.hopListAS = []
             for hop in self.hopList:
+                asResult = asLookup(hop.hopAddr, 2)
                 self.hopListAS.append(asLookup(hop.hopAddr, 2))
+
                 print('AS Number =', self.hopListAS[-1].asNumber)
 
 
