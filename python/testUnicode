@@ -1,0 +1,5 @@
+str = "\x5cland"
+try:
+    unicode(str)
+except:
+    print('yolo')

@@ -74,12 +74,13 @@ class traceRt:
         return circuitousness
 
     def analyzeCase1(self):
-        # Case 1: (src, dest) in same country, (one or more hops) in different country
+       # Case 1: (src, dest) in same country, (one or more hops) in different country
         print("**** Analyze Case 1: ****")
         # get source and destination continent
         print("Source country:", self.srcGeo.country)
         print("Destination country:", self.dstGeo.country)
 
+        hopsToReturn = []
 
         itemInd = 0
         for item in self.hopListGeo:
@@ -92,10 +93,9 @@ class traceRt:
                         hopDiff = self.hopList[itemInd].hopMean - self.hopList[itemInd-1].hopMean
                         print('Hop mean RTT:', self.hopList[itemInd].hopMean)
                         print('Delta RTT =', hopDiff)
-
+                        hopsToReturn.append(item.country)
                     else:
                         print('Could not calculate delta RTT')
-
                 else:
                     print('Could not calculate delta RTT')
 
@@ -109,7 +109,10 @@ class traceRt:
                     print('Hop AS info - country and AS# unsuccessful for this hop!')
 
                 print('Hop Country (from GeoIP lookup):', item.country)
+
             itemInd = itemInd+1
+
+        return hopsToReturn
 
     def checkCase2(self):
         ##########################
@@ -138,6 +141,8 @@ class traceRt:
             caseError = 1
 
 
+        hopsToReturn = []
+
         itemInd = 0
         for item in self.hopListGeo:
             print('Hop #', itemInd, ':', self.hopList[itemInd].hopAddr, "-", self.hopListGeo[itemInd].country, ",", self.hopListGeo[itemInd].continent)
@@ -152,12 +157,11 @@ class traceRt:
                         hopThreshold = 80
                         if hopDiff >= 80:
                             print('Delta RTT is above threshold')
+                            hopsToReturn.append(item.continent)
                         else:
                             print('DeltaRTT is below threshold, likely a false positive result')
-
                     else:
                         print('Could not calculate delta RTT')
-
                 else:
                     print('Could not calculate delta RTT')
 
@@ -171,7 +175,11 @@ class traceRt:
                     print('Hop AS info - country and AS# unsuccessful for this hop!')
 
                 print('Hop Country (from GeoIP lookup):', item.country)
+
             itemInd = itemInd+1
+
+        return hopsToReturn
+
 
 
     def checkCase3(self):
@@ -195,11 +203,9 @@ class traceRt:
         print("Source continent:", self.srcGeo.continent)
         print("Destination continent:", self.dstGeo.continent)
 
-        # verify that source and dst continent are different
 
-        # loop through each hop
-            # look at continent of intermediate hop
-            # if hop is not srcContinent or dstContinent, output the hop - (IP, AS, Country, Continent)
+        hopsToReturn = []
+
         itemInd = 0
         for item in self.hopListGeo:
             print('Hop #', itemInd, ':', self.hopList[itemInd].hopAddr, "-", self.hopListGeo[itemInd].country, ",", self.hopListGeo[itemInd].continent)
@@ -214,6 +220,7 @@ class traceRt:
                         hopThreshold = 80
                         if hopDiff >= 80:
                             print('Delta RTT is above threshold')
+                            hopsToReturn.append(item.country)
                         else:
                             print('DeltaRTT is below threshold, likely a false positive result')
 
@@ -235,12 +242,17 @@ class traceRt:
                 print('Hop Country (from GeoIP lookup):', item.country)
             itemInd = itemInd+1
 
+        return hopsToReturn
+
+
     def csvWrite(self, row, path):
         writer = csv.writer(path)
         writer.writerow(row)
+        print('Wrote to CSV YOLO JYC')
+        path.flush()
         return
 
-    def __init__(self, csvRow, case1filePath, case2filePath, case3filePath):
+    def __init__(self, csvRow, case1filePathHop, case1filePathSD, case2filePathHop, case2filePathSD, case3filePathHop, case3filePathSD):
         self.isError = 0
 
         self.csvRow = csvRow    # store the raw row / not really necessary
@@ -290,22 +302,105 @@ class traceRt:
             case1status = self.checkCase1()
             if case1status == 1:
                 self.case = 1
-                self.analyzeCase1()
-                self.csvWrite(csvRow, case1filePath)
-                # csvwrite csvRow here
+                hopsReceived = self.analyzeCase1()
+                hopsReceived = set(hopsReceived)
+
+                ####Code for saving hops in a CSV file
+                print('Len of hopsReceived = ', len(hopsReceived))
+                if len(hopsReceived) != 0:
+                    print('List is:', hopsReceived)
+                    hopsReceived = set(hopsReceived)
+                    hopsReceived = list(hopsReceived)
+
+                    for val in hopsReceived:
+                        try:
+                            unicode(val)
+                            print('List after is:', hopsReceived)
+                            self.csvWrite(hopsReceived, case1filePathHop)
+                        except:
+                            print('unicode conversion failed')
+
+                    ##Code for saving (src,dst) tuples in a CSV file
+                    srcDestList = []
+                    srcDestList.append(self.srcGeo.country)
+
+                    try:
+                        unicode(srcDestList[0])
+                        print('src_dest:', srcDestList)
+                        self.csvWrite(srcDestList, case1filePathSD);
+                        #####End of code for saving hops
+                    except:
+                        print('unicode conversion failed')
 
             case2status = self.checkCase2()
             if case2status == 1:
                 self.case = 2
-                self.analyzeCase2()
-                self.csvWrite(csvRow, case2filePath)
+                hopsReceived = self.analyzeCase2()
+                hopsReceived = set(hopsReceived)
+
+                ####Code for saving hops in a CSV file
+                print('Len of hopsReceived = ', len(hopsReceived))
+                if len(hopsReceived) != 0:
+                    print('List is:', hopsReceived)
+                    hopsReceived = set(hopsReceived)
+                    hopsReceived = list(hopsReceived)
+
+                    for val in hopsReceived:
+                        try:
+                            unicode(val)
+                            print('List after is:', hopsReceived)
+                            self.csvWrite(hopsReceived, case2filePathHop)
+                        except:
+                            print('unicode conversion failed')
+
+                    ##Code for saving (src,dst) tuples in a CSV file
+                    srcDestList = []
+                    srcDestList.append(self.srcGeo.continent)
+
+                    try:
+                        unicode(srcDestList[0])
+                        print('src_dest:', srcDestList)
+                        self.csvWrite(srcDestList, case2filePathSD);
+                        #####End of code for saving hops
+                    except:
+                        print('unicode conversion failed')
 
             case3status = self.checkCase3()
             if case3status == 1:
                 self.case = 3
-                self.analyzeCase3()
-                self.csvWrite(csvRow, case3filePath)
+                hopsReceived = self.analyzeCase3()
 
+                ####Code for saving hops in a CSV file
+                print('Len of hopsReceived = ', len(hopsReceived))
+                if len(hopsReceived) != 0:
+                    print('List is:', hopsReceived)
+                    hopsReceived = set(hopsReceived)
+                    hopsReceived = list(hopsReceived)
+
+                    for val in hopsReceived:
+                        try:
+                            unicode(val)
+                            print('List after is:', hopsReceived)
+                            self.csvWrite(hopsReceived, case3filePathHop)
+                        except:
+                            print('unicode conversion failed')
+
+                    ##Code for saving (src,dst) tuples in a CSV file
+                    srcDestList = []
+                    srcDestList.append(self.srcGeo.country)
+                    srcDestList.append(self.dstGeo.country)
+                    foundError = 0
+
+                    for ele in srcDestList:
+                        try:
+                            unicode(ele)
+                        except:
+                            foundError = 1
+
+                    if foundError == 0:
+                        print('src_dest:', srcDestList)
+                        self.csvWrite(srcDestList, case3filePathSD);
+                        #####End of code for saving hops
             # print("------END-----")
 
 
@@ -315,23 +410,30 @@ csvFile = csv.reader(csvFilePath, delimiter=';')
 
 # PATH OF OUTPUT LOG FILES:
 # output instances of case1/2/3 to csv:-
-case1filePath = open(home+'/cse534/output/case1/case1.csv', 'r+')
-case2filePath = open(home+'/cse534/output/case2/case2.csv', 'r+')
-case3filePath = open(home+'/cse534/output/case3/case3.csv', 'r+')
+case1filePathHop = open(home+'/cse534/output/case1/case1_Hop.csv', 'r+')
+case1filePathSD = open(home+'/cse534/output/case1/case1_SD.csv', 'r+')
+case2filePathHop = open(home+'/cse534/output/case2/case2_Hop.csv', 'r+')
+case2filePathSD = open(home+'/cse534/output/case2/case2_SD.csv', 'r+')
+case3filePathHop = open(home+'/cse534/output/case3/case3_Hop.csv', 'r+')
+case3filePathSD = open(home+'/cse534/output/case3/case3_SD.csv', 'r+')
+
 
 # LOOP THROUGH EACH ROW IN THE TRACEROUTE FILE - EACH ROW IS A TRACEROUTE
 startTime = str(datetime.now())
 print('Started at:', startTime)
 rowNum = 0
 for row in csvFile:
-    print("--------------------------------------------------------------Row #", rowNum)
-    result = traceRt(row, case1filePath, case2filePath, case3filePath)
-    rowNum = rowNum + 1
+    result = traceRt(row, case1filePathHop, case1filePathSD, case2filePathHop, case2filePathSD, case3filePathHop, case3filePathSD)
+    print("------------------------------- Next Row -------------------------------")
+    rowNum = rowNum+1
 
 print('Done!')
 print('Started:', startTime)
 print('Ended:', str(datetime.now()))
 print('Number of Samples:', rowNum)
-case1filePath.close()
-case2filePath.close()
-case3filePath.close()
+case1filePathHop.close()
+case1filePathSD.close()
+case2filePathHop.close()
+case2filePathSD.close()
+case3filePathHop.close()
+case3filePathSD.close()
