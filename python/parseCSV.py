@@ -141,24 +141,36 @@ class traceRt:
             # if hop is not srcContinent or dstContinent, output the hop - (IP, AS, Country, Continent)
         itemInd = 0
         for item in self.hopListGeo:
+            print('Hop #', itemInd, ':', self.hopList[itemInd].hopAddr, "-", self.hopListGeo[itemInd].country, ",", self.hopListGeo[itemInd].continent)
             if item.continent!="null" and (item.continent != self.srcGeo.continent) and (item.continent != self.dstGeo.continent):
-
+                print('---- case 3 hop ----')
                 # check RTT difference between this hop and the one before it
-                if self.hopList[itemInd].isError == 0:
-                    hopDiff = self.hopList[itemInd].hopMean - self.hopList[itemInd-1].hopMean
-                    print('Delta RTT =', hopDiff)
-                    hopThreshold = 80
-                    if hopDiff >= 80:
-                        print('Delta RTT is above threshold')
+                if self.hopList[itemInd].isError == 0 and self.hopList[itemInd-1].isError == 0:
+                    if hasattr(self.hopList[itemInd], 'hopMean') and hasattr(self.hopList[itemInd-1], 'hopMean'):
+                        hopDiff = self.hopList[itemInd].hopMean - self.hopList[itemInd-1].hopMean
+                        print('Hop mean RTT:', self.hopList[itemInd].hopMean)
+                        print('Delta RTT =', hopDiff)
+                        hopThreshold = 80
+                        if hopDiff >= 80:
+                            print('Delta RTT is above threshold')
+                        else:
+                            print('DeltaRTT is below threshold, likely a false positive result')
+
                     else:
-                        print('DeltaRTT is below threshold, likely a false positive result')
+                        print('Could not calculate delta RTT')
+
                 else:
                     print('Could not calculate delta RTT')
 
                 print('This hop is outside the src and dst continent:', item.continent)
                 print('Hop IP:', self.hopListAS[itemInd].ipAddr)
-                print('Hop AS#:', self.hopListAS[itemInd].asNumber)
-                print('Hop Country (from AS lookup):', self.hopListAS[itemInd].country)
+
+                if self.hopListAS[itemInd].ipToASLookupSucceed == 1:
+                    print('Hop AS#:', self.hopListAS[itemInd].asNumber)
+                    print('Hop Country (from AS lookup):', self.hopListAS[itemInd].country)
+                else:
+                    print('Hop AS info - country and AS# unsuccessful for this hop!')
+
                 print('Hop Country (from GeoIP lookup):', item.country)
             itemInd = itemInd+1
 
@@ -240,7 +252,7 @@ class traceRt:
 
 
 # TRACEROUTE FILE TO BE ANALYZED:
-csvFilePath = open(home+'/cse534/data/content_traceroute/1766608.csv')
+csvFilePath = open(home+'/cse534/data/regional_combined/combined_filtered_80.csv')
 csvFile = csv.reader(csvFilePath, delimiter=';')
 
 # PATH OF OUTPUT LOG FILES:
