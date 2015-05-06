@@ -14,6 +14,12 @@ class asLookup:
             lookupServer = "asn.cymru.com"
             lookupServer = query+"."+lookupServer
             lookupOutput = subprocess.check_output(("dig", "+short", lookupServer, "TXT"))
+            lookupSuccess = 0
+            try:
+                lookupOutput = subprocess.check_output(("dig", "+short", lookupServer, "TXT"))
+                lookupSuccess = 1
+            except:
+                lookupOutput = "null"
 
         elif type == 2: #ipLookup
             lookupServer = "origin.asn.cymru.com"
@@ -26,10 +32,18 @@ class asLookup:
             # join reversed IP string with the lookup server
             lookupServer = ipReverseString+"."+lookupServer
 
-            lookupOutput = subprocess.check_output(("dig", "+short", lookupServer, "TXT"))
+            lookupSuccess = 0
+            try:
+                lookupOutput = subprocess.check_output(("dig", "+short", lookupServer, "TXT"))
+                lookupSuccess = 1
+            except:
+                lookupOutput = "null"
 
-        lookupResultString = lookupOutput.decode("UTF-8")
-        lookupResultString = lookupResultString.replace("\"", "")
+        if lookupSuccess == 1:
+            lookupResultString = lookupOutput.decode("UTF-8")
+            lookupResultString = lookupResultString.replace("\"", "")
+        else:
+            lookupResultString = "null"
         # print(lookupResultString)
         return lookupResultString
 
