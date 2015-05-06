@@ -73,17 +73,35 @@ class traceRt:
         return circuitousness
 
     def analyzeCase1(self):
-        # TODO: fill in analyzeCase1
-        # Case 1: Src and Dst are in the same country, intermediate hop is outside ctry
-        print("Analyze Case 1:\n Source and Destination are in ", self.srcGeo.country)
-
+       # Case 1: (src, dest) in same country, (one or more hops) in different country
+        print("**** Analyze Case 1: ****")
         # get source and destination country
+        print("Source country:", self.srcGeo.country)
+        print("Destination country:", self.dstGeo.country)
 
-        # verify that source and dst ctry are the same
+        itemInd = 0
+        for item in self.hopListGeo:
+            if item.country!="null" and (item.country != self.srcGeo.country):
 
-        # loop through each hop
-            # look at country of each intermediate hop
-            # if hop is out of country, output the hop - (IP, AS, Country)
+                # check RTT difference between this hop and the one before it
+                if self.hopList[itemInd].isError == 0:
+                    hopDiff = self.hopList[itemInd].hopMean - self.hopList[itemInd-1].hopMean
+                    print('Delta RTT =', hopDiff)
+                    hopThreshold = 80
+                    if hopDiff >= 80:
+                        print('Delta RTT is above threshold')
+                    else:
+                        print('DeltaRTT is below threshold, likely a false positive result')
+                else:
+                    print('Could not calculate delta RTT')
+
+                print('This hop is outside the src and dst continent:', item.continent)
+                print('Hop IP:', self.hopListAS[itemInd].ipAddr)
+                print('Hop AS#:', self.hopListAS[itemInd].asNumber)
+                print('Hop Country (from AS lookup):', self.hopListAS[itemInd].country)
+                print('Hop Country (from GeoIP lookup):', item.country)
+            itemInd = itemInd+1
+
 
 
     def checkCase2(self):
@@ -101,16 +119,34 @@ class traceRt:
         return circuitousness
 
     def analyzeCase2(self):
-        # Case 1: Src and Dst are in the same continent, intermediate hop is outside continent
-        print("Analyze Case 2: Src and Dst are both in the same continent -", self.srcGeo.continent)
+        # Case 1: (src, dest) in same continent, (one or more hops) in different continent
+        print("**** Analyze Case 2: ****")
+        # get source and destination country
+        print("Source continent:", self.srcGeo.continent)
+        print("Destination continent:", self.dstGeo.continent)
 
-        # get source and destination continent
+        itemInd = 0
+        for item in self.hopListGeo:
+            if item.continent!="null" and (item.continent != self.srcGeo.continent):
 
-        # verify that source and dst ctry are the same
+                # check RTT difference between this hop and the one before it
+                if self.hopList[itemInd].isError == 0:
+                    hopDiff = self.hopList[itemInd].hopMean - self.hopList[itemInd-1].hopMean
+                    print('Delta RTT =', hopDiff)
+                    hopThreshold = 80
+                    if hopDiff >= 80:
+                        print('Delta RTT is above threshold')
+                    else:
+                        print('DeltaRTT is below threshold, likely a false positive result')
+                else:
+                    print('Could not calculate delta RTT')
 
-        # loop through each hop
-            # look at continent of intermediate hop
-            # if hop is outside of the continent, output the hop - (IP, AS, Country, Continent)
+                print('This hop is outside the src and dst continent:', item.continent)
+                print('Hop IP:', self.hopListAS[itemInd].ipAddr)
+                print('Hop AS#:', self.hopListAS[itemInd].asNumber)
+                print('Hop Country (from AS lookup):', self.hopListAS[itemInd].country)
+                print('Hop Country (from GeoIP lookup):', item.country)
+            itemInd = itemInd+1
 
 
     def checkCase3(self):
