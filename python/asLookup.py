@@ -13,7 +13,6 @@ class asLookup:
         if type == 1: #asLookup
             lookupServer = "asn.cymru.com"
             lookupServer = query+"."+lookupServer
-            lookupOutput = subprocess.check_output(("dig", "+short", lookupServer, "TXT"))
             lookupSuccess = 0
             try:
                 lookupOutput = subprocess.check_output(("dig", "+short", lookupServer, "TXT"))

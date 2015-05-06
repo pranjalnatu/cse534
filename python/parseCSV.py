@@ -2,6 +2,7 @@ import csv
 import geoip2.database
 import numpy as np
 import time
+from datetime import datetime
 
 from IPy import IP
 from asLookup import asLookup
@@ -319,6 +320,8 @@ case2filePath = open(home+'/cse534/output/case2/case2.csv', 'r+')
 case3filePath = open(home+'/cse534/output/case3/case3.csv', 'r+')
 
 # LOOP THROUGH EACH ROW IN THE TRACEROUTE FILE - EACH ROW IS A TRACEROUTE
+startTime = str(datetime.now())
+print('Started at:', startTime)
 rowNum = 0
 for row in csvFile:
     print("--------------------------------------------------------------Row #", rowNum)
@@ -326,6 +329,9 @@ for row in csvFile:
     rowNum = rowNum + 1
 
 print('Done!')
+print('Started:', startTime)
+print('Ended:', str(datetime.now()))
+print('Number of Samples:', rowNum)
 case1filePath.close()
 case2filePath.close()
 case3filePath.close()
